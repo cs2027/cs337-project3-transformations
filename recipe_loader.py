@@ -72,7 +72,7 @@ class Recipe:
 
     for ingredient in self.ingredients:
         doc = NLP(ingredient)
-        curr_ingredient, curr_quantity = [], ""
+        curr_ingredient, curr_quantity = [], [-1, "", ""]
         noun_chunks = [str(chunk) for chunk in list(doc.noun_chunks)]
 
         for idx, token in enumerate(doc):
@@ -87,10 +87,10 @@ class Recipe:
                 if measure_word_matches:
                   curr_measure_word = measure_word_matches[0]
 
-                curr_quantity = f"{token.text} {curr_measure_word}".strip()
+                curr_quantity = [token.text, curr_measure_word, f"{token.text} {curr_measure_word}".strip()]
 
         curr_ingredient = " ".join(curr_ingredient)
-        quantities[curr_ingredient] = curr_quantity if curr_quantity else None
+        quantities[curr_ingredient] = curr_quantity
 
     self.ingredient_quantities = quantities.copy()
 

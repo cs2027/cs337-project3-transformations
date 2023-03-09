@@ -4,6 +4,7 @@ import re
 from utils.vegetarian import MEATS, FISH, MEAT_SUBSTITUTES
 from utils.healthy import UNHEALTHY_FOODS
 from recipe_loader import Recipe
+from fractions import Fraction
 
 NLP = spacy.load("en_core_web_sm")
 
@@ -18,8 +19,6 @@ def main(data_source, transformation):
     if transformation not in TRANSFORMATIONS:
       print_error_message()
       exit(1)
-
-    print(recipe_data.ingredient_quantities)
 
     changes = []
 
@@ -68,22 +67,44 @@ def main(data_source, transformation):
           if set_contains_ingredient(MEATS, ingredient) or set_contains_ingredient(FISH, ingredient):
             changes.append(f"Use 'bacon' instead of {ingredient}")
 
-    if transformation == "to south asian":
+    if transformation == "to south-asian":
       pass
 
-    if transformation == "to korean":
+    if transformation == "to east-asian":
       pass
 
     if transformation == "double quantity":
-      pass
+      scaled_quantities = scale_ingredient_quantities(recipe_data.ingredient_quantities, 2)
+      changes.append(scaled_quantities)
 
     if transformation == "half quantity":
-      pass
+      scaled_quantities = scale_ingredient_quantities(recipe_data.ingredient_quantities, 0.5)
+      changes.append(scaled_quantities)
 
     if transformation == "lactose free":
       pass
 
     output_transformations(changes, transformation)
+
+def scale_ingredient_quantities(quantities, factor):
+  res = {k : "" for k in quantities.keys()}
+
+  for ingredient, quantity in quantities.items():
+    [amount, unit, _] = quantity
+
+    if amount == -1:
+      continue
+
+    if amount.isnumeric():
+      amount = float(amount)
+    else:
+      amount = float(Fraction(amount))
+
+    amount *= factor
+
+    res[ingredient] = f"{amount} {unit}" if unit else f"{amount}"
+
+  return res
 
 def set_contains_ingredient(set, ingredient):
   subwords = ingredient.split(" ")
@@ -95,11 +116,13 @@ def set_contains_ingredient(set, ingredient):
   return ""
 
 def output_transformations(changes, transformation):
-  print(f"\n[TRANSFORMATIONS for '{transformation}']")
+  print(f"\n[TRANSFORMATIONS for '{transformation}']\n")
 
   if changes:
-    for change in changes:
-      print(change)
+    if "quantity" in transformation:
+      print("NEW INGREDIENT QUANTITIES:")
+      for change in changes:
+        print(change)
   else:
     print("No changes found")
 
@@ -115,8 +138,8 @@ def ingredient_lookup(quantities, query):
 def print_error_message():
   print()
   print("Error: Invalid transformation. Valid transformations are one of the following:\n")
-  print("1. to vegeterian\n2. from vegeterian\n3. to south asian\n4. to korean")
-  print("5. double quantity\n6. half quantity\n7.lactose free")
+  print("1. to vegeterian\n2. from vegeterian\n3. to healthy\n4. to unhealthy\n5. to south-asian")
+  print("6. to east-asian\n7. double quantity\n8. half quantity\n9. lactose free")
   print()
 
 if __name__ == "__main__":
