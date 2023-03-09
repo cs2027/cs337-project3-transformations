@@ -64,7 +64,7 @@ class Recipe:
     self.steps = self.parse_steps(self.steps)
 
   def load_ingredients(self):
-    quantities = {}
+    res = []
 
     token_filter = lambda s : s.text not in DEFAULT_MEASURE_WORDS and s.dep_ != "nummod" and s.pos_ in ["PROPN", "NOUN", "VERB", "ADJ"]
     comma_surrounded_by_keywords = lambda doc, idx: doc[idx - 1].pos_ not in ["PROPN", "NOUN", "ADJ"] or doc[idx + 1].pos_ not in ["PROPN", "NOUN", "ADJ"]
@@ -75,7 +75,11 @@ class Recipe:
         curr_ingredient, curr_quantity = [], ""
         noun_chunks = [str(chunk) for chunk in list(doc.noun_chunks)]
 
+        subres = ["", "", ""]
+
         for idx, token in enumerate(doc):
+            if token.dep_ == "ROOT":
+              subres[0] = token.text
             if token_filter(token):
               curr_ingredient.append(token.text)
             elif token.text == "," and (comma_surrounded_by_keywords(doc, idx) or not start_noun_chunk(doc[idx + 1].text, noun_chunks)):
@@ -90,9 +94,12 @@ class Recipe:
                 curr_quantity = f"{token.text} {curr_measure_word}".strip()
 
         curr_ingredient = " ".join(curr_ingredient)
-        quantities[curr_ingredient] = curr_quantity if curr_quantity else None
+        subres[1] = curr_ingredient
+        subres[2] = curr_quantity if curr_quantity else None
 
-    self.ingredient_quantities = quantities.copy()
+        res.append(subres)
+
+    self.ingredient_quantities = res.copy()
 
   def load_recipe_steps(self):
     res = []
