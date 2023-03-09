@@ -3,6 +3,7 @@ import spacy
 import re
 from utils.vegetarian import MEATS, FISH, MEAT_SUBSTITUTES
 from utils.healthy import UNHEALTHY_FOODS
+from utils.lactose import LACTOSE_FOODS
 from recipe_loader import Recipe
 from fractions import Fraction
 
@@ -67,11 +68,14 @@ def main(data_source, transformation):
           if set_contains_ingredient(MEATS, ingredient) or set_contains_ingredient(FISH, ingredient):
             changes.append(f"Use 'bacon' instead of {ingredient}")
 
-    if transformation == "to south-asian":
-      pass
+    '''
+    TODO
+    '''
+    # if transformation == "to south-asian":
+    #   pass
 
-    if transformation == "to east-asian":
-      pass
+    # if transformation == "to east-asian":
+    #   pass
 
     if transformation == "double quantity":
       scaled_quantities = scale_ingredient_quantities(recipe_data.ingredient_quantities, 2)
@@ -82,7 +86,13 @@ def main(data_source, transformation):
       changes.append(scaled_quantities)
 
     if transformation == "lactose free":
-      pass
+      lactose_foods = LACTOSE_FOODS.keys()
+
+      for ingredient in recipe_data.ingredient_quantities.keys():
+        res = set_contains_ingredient(lactose_foods, ingredient)
+
+        if res:
+          changes.append(f"Use '{LACTOSE_FOODS[res]}' instead of {ingredient}")
 
     output_transformations(changes, transformation)
 
@@ -121,8 +131,9 @@ def output_transformations(changes, transformation):
   if changes:
     if "quantity" in transformation:
       print("NEW INGREDIENT QUANTITIES:")
-      for change in changes:
-        print(change)
+
+    for change in changes:
+      print(change)
   else:
     print("No changes found")
 
