@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from recipe_scrapers import scrape_me
 from sample_recipes import recipe1, recipe2, recipe3, recipe4, recipe5
-from cooking_lexicon import DEFAULT_MEASURE_WORDS, DEFAULT_TIME_WORDS, DEFAULT_COOKING_ACTIONS
+from utils.cooking_lexicon import DEFAULT_MEASURE_WORDS, DEFAULT_TIME_WORDS, DEFAULT_COOKING_ACTIONS
 from recipe_step import RecipeStep
 
 NLP = spacy.load("en_core_web_sm")
