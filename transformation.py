@@ -139,13 +139,6 @@ def output_transformations(changes, transformation):
 
   print()
 
-def ingredient_lookup(quantities, query):
-  for ingredient, quantity in quantities.items():
-    if query in ingredient:
-      return quantity
-
-  return None
-
 def print_error_message():
   print()
   print("Error: Invalid transformation. Valid transformations are one of the following:\n")
