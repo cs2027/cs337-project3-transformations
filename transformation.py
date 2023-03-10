@@ -4,6 +4,7 @@ import re
 from utils.vegetarian import MEATS, FISH, MEAT_SUBSTITUTES
 from utils.healthy import UNHEALTHY_FOODS
 from utils.lactose import LACTOSE_FOODS
+from utils.cuisine_style import CUISINES
 from recipe_loader import Recipe
 from fractions import Fraction
 
@@ -11,16 +12,11 @@ NLP = spacy.load("en_core_web_sm")
 
 TRANSFORMATIONS = [
   "to vegeterian", "from vegeterian", "to healthy", "to unhealthy",
-  "to south asian", "to korean", "double quantity", "half quantity", "lactose free"
+  "double quantity", "half quantity", "lactose free"
 ]
 
 def main(data_source, transformation):
     recipe_data = Recipe(data_source)
-
-    if transformation not in TRANSFORMATIONS:
-      print_error_message()
-      exit(1)
-
     changes = []
 
     if transformation == "to vegeterian":
@@ -68,15 +64,6 @@ def main(data_source, transformation):
           if set_contains_ingredient(MEATS, ingredient) or set_contains_ingredient(FISH, ingredient):
             changes.append(f"Use 'bacon' instead of {ingredient}")
 
-    '''
-    TODO
-    '''
-    # if transformation == "to south-asian":
-    #   pass
-
-    # if transformation == "to east-asian":
-    #   pass
-
     if transformation == "double quantity":
       scaled_quantities = scale_ingredient_quantities(recipe_data.ingredient_quantities, 2)
       changes.append(scaled_quantities)
@@ -93,6 +80,25 @@ def main(data_source, transformation):
 
         if res:
           changes.append(f"Use '{LACTOSE_FOODS[res]}' instead of {ingredient}")
+
+    [from_cuisine, to_cuisine] = transformation.split(" ")
+    possible_cuisines = CUISINES.keys()
+
+    if not from_cuisine.lower() in possible_cuisines or not to_cuisine.lower() in possible_cuisines:
+      print_error_message()
+      print(f"Currently only supporting cuisines: {list(possible_cuisines)}\n")
+      exit(1)
+    else:
+      from_cuisine_data, to_cuisine_data = CUISINES[from_cuisine], CUISINES[to_cuisine]
+      replacements = { "proteins": [], "spices": [], "sauces": [], "herbs": [] }
+
+      for replacement in replacements.keys():
+        for ingredient in recipe_data.ingredient_quantities.keys():
+          if set_contains_ingredient(getattr(from_cuisine_data, replacement), ingredient):
+            replacements[replacement] = replacements[replacement] + [ingredient]
+
+        if replacements[replacement]:
+          changes.append(f"Use any of '{getattr(to_cuisine_data, replacement)}' instead of {replacements[replacement]}")
 
     output_transformations(changes, transformation)
 
@@ -126,7 +132,11 @@ def set_contains_ingredient(set, ingredient):
   return ""
 
 def output_transformations(changes, transformation):
-  print(f"\n[TRANSFORMATIONS for '{transformation}']\n")
+  if transformation in TRANSFORMATIONS:
+    print(f"\n[TRANSFORMATIONS for '{transformation}']\n")
+  else:
+    [from_cuisine, to_cuisine] = transformation.split(" ")
+    print(f"\n[TRANSFORMATIONS for '{from_cuisine}' to '{to_cuisine}']\n")
 
   if changes:
     if "quantity" in transformation:
@@ -143,7 +153,7 @@ def print_error_message():
   print()
   print("Error: Invalid transformation. Valid transformations are one of the following:\n")
   print("1. to vegeterian\n2. from vegeterian\n3. to healthy\n4. to unhealthy\n5. to south-asian")
-  print("6. to east-asian\n7. double quantity\n8. half quantity\n9. lactose free")
+  print("6. [from-cuisine] [to-cuisine]\n7. half quantity\n8. lactose free")
   print()
 
 if __name__ == "__main__":

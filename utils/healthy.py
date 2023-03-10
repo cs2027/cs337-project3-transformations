@@ -5,7 +5,3 @@ UNHEALTHY_FOODS = {
   "lard": "olive oil",
   "margarine": "olive oil"
 }
-
-HEALTHY_FOODS = {
-
-}
