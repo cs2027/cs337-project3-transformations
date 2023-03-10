@@ -9,7 +9,7 @@ CUISINES = {
   "korean": Cuisine(
     ["beef", "pork"],
     ["chili pepper flakes"],
-    ["soybean paste", "gochujang", "soy sauce", "rice wine", "fish sauce"],
+    ["soybean paste", "gochujang", "soy sauce", "oyster sauce", "rice wine", "fish sauce"],
     ["kimchi", "garlic", "ginger", "scallions"]
   ),
   "mexican": Cuisine(

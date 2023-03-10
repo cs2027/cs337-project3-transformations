@@ -94,7 +94,7 @@ def main(data_source, transformation):
 
       for replacement in replacements.keys():
         for ingredient in recipe_data.ingredient_quantities.keys():
-          if set_contains_ingredient(getattr(from_cuisine_data, replacement), ingredient):
+          if set_contains_ingredient(getattr(from_cuisine_data, replacement), ingredient, True):
             replacements[replacement] = replacements[replacement] + [ingredient]
 
         if replacements[replacement]:
@@ -122,12 +122,19 @@ def scale_ingredient_quantities(quantities, factor):
 
   return res
 
-def set_contains_ingredient(set, ingredient):
-  subwords = ingredient.split(" ")
+def set_contains_ingredient(set, ingredient, inverted_loop_flag=False):
+  if not inverted_loop_flag:
+    subwords = ingredient.split(" ")
 
-  for word in subwords:
-    if word in set:
-      return word
+    for word in subwords:
+      if word in set:
+        return word
+
+    return ""
+
+  for word in set:
+    if word in ingredient.lower():
+      return ingredient
 
   return ""
 
