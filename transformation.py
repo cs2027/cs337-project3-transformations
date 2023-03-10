@@ -17,6 +17,7 @@ TRANSFORMATIONS = [
 
 def main(data_source, transformation):
     recipe_data = Recipe(data_source)
+    valid_transformation = False
     changes = []
 
     if transformation == "to vegeterian":
@@ -30,6 +31,8 @@ def main(data_source, transformation):
         if set_contains_ingredient(FISH, ingredient):
           changes.append(f"Use 'tofu' instead of {ingredient}")
 
+      valid_transformation = True
+
     if transformation == "from vegeterian":
       meat_substitutes = MEAT_SUBSTITUTES.keys()
 
@@ -38,6 +41,8 @@ def main(data_source, transformation):
 
         if res:
           changes.append(f"Use '{MEAT_SUBSTITUTES[res]}' instead of {ingredient}")
+
+      valid_transformation = True
 
     if transformation == "to healthy":
       unhealthy_foods = UNHEALTHY_FOODS.keys()
@@ -49,6 +54,8 @@ def main(data_source, transformation):
           changes.append(f"Use '{UNHEALTHY_FOODS[res]}' instead of {ingredient}")
         elif "oil" in ingredient.lower() and "olive oil" not in ingredient.lower():
           changes.append(f"Use 'olive oil' instead of {ingredient}")
+
+      valid_transformation = True
 
     if transformation == "to unhealthy":
       for ingredient in recipe_data.ingredient_quantities.keys():
@@ -64,13 +71,19 @@ def main(data_source, transformation):
           if set_contains_ingredient(MEATS, ingredient) or set_contains_ingredient(FISH, ingredient):
             changes.append(f"Use 'bacon' instead of {ingredient}")
 
+      valid_transformation = True
+
     if transformation == "double quantity":
       scaled_quantities = scale_ingredient_quantities(recipe_data.ingredient_quantities, 2)
       changes.append(scaled_quantities)
 
+      valid_transformation = True
+
     if transformation == "half quantity":
       scaled_quantities = scale_ingredient_quantities(recipe_data.ingredient_quantities, 0.5)
       changes.append(scaled_quantities)
+
+      valid_transformation = True
 
     if transformation == "lactose free":
       lactose_foods = LACTOSE_FOODS.keys()
@@ -81,26 +94,32 @@ def main(data_source, transformation):
         if res:
           changes.append(f"Use '{LACTOSE_FOODS[res]}' instead of {ingredient}")
 
-    [from_cuisine, to_cuisine] = transformation.split(" ")
-    possible_cuisines = CUISINES.keys()
+      valid_transformation = True
 
-    if not from_cuisine.lower() in possible_cuisines or not to_cuisine.lower() in possible_cuisines:
-      print_error_message()
-      print(f"Currently only supporting cuisines: {list(possible_cuisines)}\n")
-      exit(1)
-    else:
-      from_cuisine_data, to_cuisine_data = CUISINES[from_cuisine], CUISINES[to_cuisine]
-      replacements = { "proteins": [], "spices": [], "sauces": [], "herbs": [] }
+    if not valid_transformation:
+      [from_cuisine, to_cuisine] = transformation.split(" ")
+      possible_cuisines = CUISINES.keys()
 
-      for replacement in replacements.keys():
-        for ingredient in recipe_data.ingredient_quantities.keys():
-          if set_contains_ingredient(getattr(from_cuisine_data, replacement), ingredient, True):
-            replacements[replacement] = replacements[replacement] + [ingredient]
+      if not from_cuisine.lower() in possible_cuisines or not to_cuisine.lower() in possible_cuisines:
+        print_error_message()
+        print(f"Currently only supporting cuisines: {list(possible_cuisines)}\n")
+        exit(1)
+      else:
+        from_cuisine_data, to_cuisine_data = CUISINES[from_cuisine], CUISINES[to_cuisine]
+        replacements = { "proteins": [], "spices": [], "sauces": [], "herbs": [] }
 
-        if replacements[replacement]:
-          changes.append(f"Use any of '{getattr(to_cuisine_data, replacement)}' instead of {replacements[replacement]}")
+        for replacement in replacements.keys():
+          for ingredient in recipe_data.ingredient_quantities.keys():
+            if set_contains_ingredient(getattr(from_cuisine_data, replacement), ingredient, True):
+              replacements[replacement] = replacements[replacement] + [ingredient]
 
-    output_transformations(changes, transformation)
+          if replacements[replacement]:
+            changes.append(f"Use any of '{getattr(to_cuisine_data, replacement)}' instead of {replacements[replacement]}")
+
+        valid_transformation = True
+
+    if valid_transformation:
+      output_transformations(changes, transformation)
 
 def scale_ingredient_quantities(quantities, factor):
   res = {k : "" for k in quantities.keys()}
@@ -159,7 +178,7 @@ def output_transformations(changes, transformation):
 def print_error_message():
   print()
   print("Error: Invalid transformation. Valid transformations are one of the following:\n")
-  print("1. to vegeterian\n2. from vegeterian\n3. to healthy\n4. to unhealthy\n5. from-cuisine] [to-cuisine]")
+  print("1. to vegeterian\n2. from vegeterian\n3. to healthy\n4. to unhealthy\n5. [from-cuisine] [to-cuisine]")
   print("6. double quantity\n7. half quantity\n8. lactose free")
   print()
 
