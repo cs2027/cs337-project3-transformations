@@ -1,6 +1,6 @@
 # Transformation Project
 
-Usage: python3 transformation.py <recipe URL> <transformation string>
+Usage: python3 transformation.py (recipe URL) (transformation string)
 
 Valid transformations are of the form:
 
