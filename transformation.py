@@ -159,8 +159,8 @@ def output_transformations(changes, transformation):
 def print_error_message():
   print()
   print("Error: Invalid transformation. Valid transformations are one of the following:\n")
-  print("1. to vegeterian\n2. from vegeterian\n3. to healthy\n4. to unhealthy\n5. to south-asian")
-  print("6. [from-cuisine] [to-cuisine]\n7. half quantity\n8. lactose free")
+  print("1. to vegeterian\n2. from vegeterian\n3. to healthy\n4. to unhealthy\n5. from-cuisine] [to-cuisine]")
+  print("6. double quantity\n7. half quantity\n8. lactose free")
   print()
 
 if __name__ == "__main__":
