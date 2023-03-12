@@ -15,6 +15,8 @@ TRANSFORMATIONS = [
   "double quantity", "half quantity", "lactose free"
 ]
 
+NON_MEAT_KEYWORDS = ["broth", "soup", "sauce"]
+
 def main(data_source, transformation):
     recipe_data = Recipe(data_source)
     valid_transformation = False
@@ -22,6 +24,9 @@ def main(data_source, transformation):
 
     if transformation == "to vegeterian":
       for ingredient in recipe_data.ingredient_quantities.keys():
+        if any([keyword in ingredient for keyword in NON_MEAT_KEYWORDS]):
+          continue
+
         if set_contains_ingredient(MEATS, ingredient):
           if "ground" in ingredient or "minced" in ingredient:
             changes.append(f"Use 'lentils' instead of {ingredient}")
@@ -37,6 +42,9 @@ def main(data_source, transformation):
       meat_substitutes = MEAT_SUBSTITUTES.keys()
 
       for ingredient in recipe_data.ingredient_quantities.keys():
+        if any([keyword in ingredient for keyword in NON_MEAT_KEYWORDS]):
+          continue
+
         res = set_contains_ingredient(meat_substitutes, ingredient)
 
         if res:
@@ -48,6 +56,9 @@ def main(data_source, transformation):
       unhealthy_foods = UNHEALTHY_FOODS.keys()
 
       for ingredient in recipe_data.ingredient_quantities.keys():
+        if any([keyword in ingredient for keyword in NON_MEAT_KEYWORDS]):
+          continue
+
         res = set_contains_ingredient(unhealthy_foods, ingredient)
 
         if res:
@@ -59,13 +70,12 @@ def main(data_source, transformation):
 
     if transformation == "to unhealthy":
       for ingredient in recipe_data.ingredient_quantities.keys():
-
         if "oil" in ingredient.lower():
           changes.append(f"Use 'lard' instead of {ingredient}")
         elif "sugar" in ingredient.lower():
           changes.append(f"Use 'corn syrup' instead of {ingredient}")
         else:
-          if "bacon" in ingredient:
+          if any([keyword in ingredient for keyword in NON_MEAT_KEYWORDS]) or "bacon" in ingredient:
             continue
 
           if set_contains_ingredient(MEATS, ingredient) or set_contains_ingredient(FISH, ingredient):
