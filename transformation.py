@@ -11,7 +11,7 @@ from fractions import Fraction
 NLP = spacy.load("en_core_web_sm")
 
 TRANSFORMATIONS = [
-  "to vegeterian", "from vegeterian", "to healthy", "to unhealthy",
+  "to vegetarian", "from vegetarian", "to healthy", "to unhealthy",
   "double quantity", "half quantity", "lactose free"
 ]
 
@@ -21,8 +21,8 @@ def main(data_source, transformation):
     recipe_data = Recipe(data_source)
     valid_transformation = False
     changes = []
-
-    if transformation == "to vegeterian":
+    print(transformation)
+    if transformation == "to vegetarian":
       for ingredient in recipe_data.ingredient_quantities.keys():
         if any([keyword in ingredient for keyword in NON_MEAT_KEYWORDS]):
           continue
@@ -38,7 +38,7 @@ def main(data_source, transformation):
 
       valid_transformation = True
 
-    if transformation == "from vegeterian":
+    if transformation == "from vegetarian":
       meat_substitutes = MEAT_SUBSTITUTES.keys()
 
       for ingredient in recipe_data.ingredient_quantities.keys():
@@ -188,7 +188,7 @@ def output_transformations(changes, transformation):
 def print_error_message():
   print()
   print("Error: Invalid transformation. Valid transformations are one of the following:\n")
-  print("1. to vegeterian\n2. from vegeterian\n3. to healthy\n4. to unhealthy\n5. [from-cuisine] [to-cuisine]")
+  print("1. to vegetarian\n2. from vegetarian\n3. to healthy\n4. to unhealthy\n5. [from-cuisine] [to-cuisine]")
   print("6. double quantity\n7. half quantity\n8. lactose free")
   print()
 
