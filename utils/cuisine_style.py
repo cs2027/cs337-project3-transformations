@@ -26,7 +26,7 @@ CUISINES = {
   ),
   "indian": Cuisine(
     ["mutton", "chicken", "fish"],
-    ["cumin", "coriander", "clove", "cinnamon", "turmeric"],
+    ["fenugreek", "cardamom"],
     ["coconut chutney", "raita", "mint chutney", "pakora sauce"],
      ["cumin", "coriander", "clove", "cinnamon", "turmeric"]
   )
